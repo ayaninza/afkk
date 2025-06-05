@@ -23,14 +23,15 @@ client.on('message', async msg => {
     const sender = msg.author || msg.from;
 
     // If sender was AFK and now sends a message, remove AFK and notify
-    if (afk.removeAFK(sender)) {
+    if (afk.isAfk(sender)) {
+        afk.removeAfk(sender);
         msg.reply("Welcome back! You're no longer AFK.");
     }
 
     // If message is '.afk' command
     if (msg.body.startsWith('.afk')) {
         const reason = msg.body.split(' ').slice(1).join(' ') || "No reason.";
-        afk.setAFK(sender, reason);
+        afk.setAfk(sender, reason);
         msg.reply(`AFK set: ${reason}`);
     }
 });
@@ -38,9 +39,9 @@ client.on('message', async msg => {
 client.on('message_create', async msg => {
     if (msg.mentionedIds && msg.mentionedIds.length > 0) {
         msg.mentionedIds.forEach(id => {
-            const reason = afk.checkAFK(id);
-            if (reason) {
-                msg.reply(`User is AFK: ${reason}`);
+            if (afk.isAfk(id)) {
+                const data = afk.getAfk(id);
+                msg.reply(`User is AFK: ${data.reason}`);
             }
         });
     }
