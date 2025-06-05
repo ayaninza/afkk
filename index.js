@@ -12,12 +12,12 @@ const client = new Client({
 client.on('message', async msg => {
     const sender = msg.author || msg.from;
 
-    // Remove AFK if sending a message
+    // If sender was AFK and now sends a message, remove AFK and notify
     if (afk.removeAFK(sender)) {
         msg.reply("Welcome back! You're no longer AFK.");
     }
 
-    // AFK command
+    // If message is '.afk' command
     if (msg.body.startsWith('.afk')) {
         const reason = msg.body.split(' ').slice(1).join(' ') || "No reason.";
         afk.setAFK(sender, reason);
