@@ -1,5 +1,6 @@
 const { Client, LegacySessionAuth } = require('whatsapp-web.js');
 const fs = require('fs');
+const qrcode = require('qrcode');
 const afk = require('./afk');
 
 let sessionData = fs.existsSync('./session.json') ? require('./session.json') : null;
@@ -7,6 +8,15 @@ let sessionData = fs.existsSync('./session.json') ? require('./session.json') : 
 const client = new Client({
     authStrategy: new LegacySessionAuth({ session: sessionData }),
     puppeteer: { headless: true, args: ['--no-sandbox'] }
+});
+
+client.on('qr', async (qr) => {
+    try {
+        await qrcode.toFile('qr.png', qr);
+        console.log('QR code saved as qr.png - please download this file from Railway and scan it with your phone.');
+    } catch (err) {
+        console.error('Failed to generate QR code image:', err);
+    }
 });
 
 client.on('message', async msg => {
