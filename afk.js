@@ -1,33 +1,43 @@
-const fs = require('fs');
+const afkUsers = new Map();
 
-const afkFile = './afk.json';
-
-let afkData = fs.existsSync(afkFile) ? JSON.parse(fs.readFileSync(afkFile)) : {};
-
-function saveAFK() {
-    fs.writeFileSync(afkFile, JSON.stringify(afkData, null, 2));
+/**
+ * Set a user as AFK with optional reason
+ * @param {string} userId - WhatsApp user ID
+ * @param {string} reason - Reason for AFK
+ */
+function setAfk(userId, reason = 'AFK') {
+    afkUsers.set(userId, { reason, time: Date.now() });
 }
 
-function setAFK(userId, reason) {
-    afkData[userId] = reason;
-    saveAFK();
+/**
+ * Remove a user's AFK status
+ * @param {string} userId
+ */
+function removeAfk(userId) {
+    afkUsers.delete(userId);
 }
 
-function removeAFK(userId) {
-    if (afkData[userId]) {
-        delete afkData[userId];
-        saveAFK();
-        return true;
-    }
-    return false;
+/**
+ * Check if a user is AFK
+ * @param {string} userId
+ * @returns {boolean}
+ */
+function isAfk(userId) {
+    return afkUsers.has(userId);
 }
 
-function checkAFK(userId) {
-    return afkData[userId] || null;
+/**
+ * Get AFK data of a user
+ * @param {string} userId
+ * @returns {{reason: string, time: number} | null}
+ */
+function getAfk(userId) {
+    return afkUsers.get(userId) || null;
 }
 
 module.exports = {
-    setAFK,
-    removeAFK,
-    checkAFK
+    setAfk,
+    removeAfk,
+    isAfk,
+    getAfk
 };
